@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)file:///C:/Users/cjung/opam_power_analysis/opam.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>OPAM workshop</title>
+<style class="anchorjs"></style><style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="./code_rendered_files/clipboard.min.js"></script>
+<script src="./code_rendered_files/quarto.js"></script>
+<script src="./code_rendered_files/popper.min.js"></script>
+<script src="./code_rendered_files/tippy.umd.min.js"></script>
+<script src="./code_rendered_files/anchor.min.js"></script>
+<link href="./code_rendered_files/tippy.css" rel="stylesheet">
+<link href="./code_rendered_files/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="./code_rendered_files/bootstrap.min.js"></script>
+<link href="./code_rendered_files/bootstrap-icons.css" rel="stylesheet">
+<link href="./code_rendered_files/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">OPAM workshop</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>shout-out to the work of Lisa DeBruine <a href="https://journals.sagepub.com/doi/full/10.1177/2515245920965119">whose work</a> heavily inspired this script.</p>
+<p>import the libraries we need:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmerTest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="a-single-simulation" class="level2">
+<h2 class="anchored" data-anchor-id="a-single-simulation">A single simulation<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="file:///C:/Users/cjung/opam_power_analysis/opam.html#a-single-simulation" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>Set the combination of variables we want to test</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb2-1" aria-hidden="true" tabindex="-1"></a>n_sub <span class="ot">&lt;-</span> <span class="dv">20</span> <span class="co"># number of subjects</span></span>
+<span id="cb2-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb2-2" aria-hidden="true" tabindex="-1"></a>n_trials <span class="ot">&lt;-</span> <span class="dv">100</span> <span class="co"># number of trials per condition</span></span>
+<span id="cb2-3"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb2-3" aria-hidden="true" tabindex="-1"></a>b_0 <span class="ot">&lt;-</span> <span class="dv">1000</span> <span class="co"># overall intercept</span></span>
+<span id="cb2-4"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb2-4" aria-hidden="true" tabindex="-1"></a>b_1 <span class="ot">&lt;-</span> <span class="dv">50</span> <span class="co"># effect of my manipulation</span></span>
+<span id="cb2-5"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb2-5" aria-hidden="true" tabindex="-1"></a>tau_0 <span class="ot">&lt;-</span> <span class="dv">80</span> <span class="co"># sd of random intercepts</span></span>
+<span id="cb2-6"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb2-6" aria-hidden="true" tabindex="-1"></a>tau_1 <span class="ot">&lt;-</span> <span class="dv">30</span> <span class="co"># sd of random slopes</span></span>
+<span id="cb2-7"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb2-7" aria-hidden="true" tabindex="-1"></a>rho <span class="ot">&lt;-</span> .<span class="dv">2</span> <span class="co"># correlation of random effects</span></span>
+<span id="cb2-8"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb2-8" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">200</span> <span class="co"># irreducible noise on trials</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The random effects structure needs to be converted from what we wrote above into a covariance matrix: this cell takes care of that.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate random intercept / random slope covariance</span></span>
+<span id="cb3-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-2" aria-hidden="true" tabindex="-1"></a>covar <span class="ot">&lt;-</span> rho <span class="sc">*</span> tau_0 <span class="sc">*</span> tau_1</span>
+<span id="cb3-3"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># put values into variance-covariance matrix</span></span>
+<span id="cb3-5"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-5" aria-hidden="true" tabindex="-1"></a>cov_mx  <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb3-6"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(tau_0<span class="sc">^</span><span class="dv">2</span>, covar,</span>
+<span id="cb3-7"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-7" aria-hidden="true" tabindex="-1"></a>    covar,   tau_1<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb3-8"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-9"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-10" aria-hidden="true" tabindex="-1"></a>subject_rfx <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(<span class="at">n =</span> n_sub,</span>
+<span id="cb3-11"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-11" aria-hidden="true" tabindex="-1"></a>                             <span class="at">mu =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb3-12"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb3-12" aria-hidden="true" tabindex="-1"></a>                             <span class="at">Sigma =</span> cov_mx)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now make the dataframe with all the combinations of participants and trials, and then get your outputs per trial!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-1" aria-hidden="true" tabindex="-1"></a>df_sim <span class="ot">&lt;-</span> <span class="fu">crossing</span>(</span>
+<span id="cb4-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">sub =</span> <span class="dv">1</span><span class="sc">:</span>n_sub,</span>
+<span id="cb4-3"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">trial =</span> <span class="dv">1</span><span class="sc">:</span>n_trials,</span>
+<span id="cb4-4"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition =</span> <span class="fu">c</span>(<span class="st">"absent"</span>,<span class="st">"present"</span>)</span>
+<span id="cb4-5"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-6"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-7"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sub =</span> <span class="fu">as.factor</span>(sub),</span>
+<span id="cb4-8"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">b_0 =</span> b_0, </span>
+<span id="cb4-9"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">b_1 =</span> b_1, </span>
+<span id="cb4-10"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">t_0s =</span> subject_rfx[sub,<span class="dv">1</span>], </span>
+<span id="cb4-11"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">t_1s =</span> subject_rfx[sub,<span class="dv">2</span>],</span>
+<span id="cb4-12"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">sigma =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, sigma),</span>
+<span id="cb4-13"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">rt =</span> b_0 <span class="sc">+</span> t_0s <span class="sc">+</span> <span class="fu">if_else</span>(condition<span class="sc">==</span><span class="st">"present"</span>,b_1 <span class="sc">+</span> t_1s, <span class="dv">0</span>) <span class="sc">+</span> sigma</span>
+<span id="cb4-14"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-14" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb4-15"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb4-15" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(sub, condition, rt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s make a little plot to check that all looks as it should.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb5-1" aria-hidden="true" tabindex="-1"></a>df_sim <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>condition, <span class="at">y=</span>rt,<span class="at">group=</span>sub, <span class="at">colour=</span>sub)) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> mean_se) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">geom=</span><span class="st">"line"</span>,<span class="at">fun=</span>mean) <span class="sc">+</span></span>
+<span id="cb5-5"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">color=</span><span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb5-6"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb5-7"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Avg RT (ms)"</span>) <span class="sc">+</span></span>
+<span id="cb5-8"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Condition"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="./code_rendered_files/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Looks good! Now to model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb6-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(rt <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> condition <span class="sc">|</span> sub), <span class="at">data=</span>df_sim)</span>
+<span id="cb6-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: rt ~ condition + (1 + condition | sub)
+   Data: df_sim
+
+REML criterion at convergence: 53829.3
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.6523 -0.7047 -0.0141  0.6643  3.5293 
+
+Random effects:
+ Groups   Name             Variance Std.Dev. Corr
+ sub      (Intercept)       6856.4   82.80       
+          conditionpresent   579.8   24.08   0.21
+ Residual                  40245.4  200.61       
+Number of obs: 4000, groups:  sub, 20
+
+Fixed effects:
+                 Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)       984.467     19.051  19.000  51.675  &lt; 2e-16 ***
+conditionpresent   46.944      8.321  19.000   5.642 1.94e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr)
+condtnprsnt 0.004 </code></pre>
+</div>
+</div>
+<p>Looks like our “experiment” does pretty well at extracting the true parameter values!</p>
+</section>
+<section id="turning-the-simulation-into-a-function" class="level2">
+<h2 class="anchored" data-anchor-id="turning-the-simulation-into-a-function">Turning the simulation into a function<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="file:///C:/Users/cjung/opam_power_analysis/opam.html#turning-the-simulation-into-a-function" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>We want to call this simulation many times, so we wrap the above into a function to call many times! First, a function to generate a dataframe with experiment data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-1" aria-hidden="true" tabindex="-1"></a>sim_data <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb8-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_sub =</span> <span class="dv">20</span>,</span>
+<span id="cb8-3"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_trials =</span> <span class="dv">100</span>,</span>
+<span id="cb8-4"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">b_0 =</span> <span class="dv">1000</span>,</span>
+<span id="cb8-5"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">b_1 =</span> <span class="dv">200</span>,</span>
+<span id="cb8-6"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">tau_0 =</span> <span class="dv">80</span>,</span>
+<span id="cb8-7"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">tau_1 =</span> <span class="dv">30</span>,</span>
+<span id="cb8-8"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">rho =</span> .<span class="dv">2</span>,</span>
+<span id="cb8-9"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">sigma =</span> <span class="dv">200</span></span>
+<span id="cb8-10"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-10" aria-hidden="true" tabindex="-1"></a>){</span>
+<span id="cb8-11"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># calculate random intercept / random slope covariance</span></span>
+<span id="cb8-12"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-12" aria-hidden="true" tabindex="-1"></a>  covar <span class="ot">&lt;-</span> rho <span class="sc">*</span> tau_0 <span class="sc">*</span> tau_1</span>
+<span id="cb8-13"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-14"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># put values into variance-covariance matrix</span></span>
+<span id="cb8-15"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-15" aria-hidden="true" tabindex="-1"></a>  cov_mx  <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb8-16"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(tau_0<span class="sc">^</span><span class="dv">2</span>, covar,</span>
+<span id="cb8-17"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-17" aria-hidden="true" tabindex="-1"></a>      covar,   tau_1<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb8-18"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-19"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-20"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-20" aria-hidden="true" tabindex="-1"></a>  subject_rfx <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(<span class="at">n =</span> n_sub,</span>
+<span id="cb8-21"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-21" aria-hidden="true" tabindex="-1"></a>                               <span class="at">mu =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb8-22"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-22" aria-hidden="true" tabindex="-1"></a>                               <span class="at">Sigma =</span> cov_mx)</span>
+<span id="cb8-23"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-24"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-24" aria-hidden="true" tabindex="-1"></a>  df_sim <span class="ot">&lt;-</span> <span class="fu">crossing</span>(</span>
+<span id="cb8-25"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">sub =</span> <span class="dv">1</span><span class="sc">:</span>n_sub,</span>
+<span id="cb8-26"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">trial =</span> <span class="dv">1</span><span class="sc">:</span>n_trials,</span>
+<span id="cb8-27"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition =</span> <span class="fu">c</span>(<span class="st">"absent"</span>,<span class="st">"present"</span>)</span>
+<span id="cb8-28"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-29"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb8-30"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">b_0 =</span> b_0, </span>
+<span id="cb8-31"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">b_1 =</span> b_1, </span>
+<span id="cb8-32"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">t_0s =</span> subject_rfx[sub,<span class="dv">1</span>], </span>
+<span id="cb8-33"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">t_1s =</span> subject_rfx[sub,<span class="dv">2</span>],</span>
+<span id="cb8-34"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">sigma =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, sigma),</span>
+<span id="cb8-35"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">rt =</span> b_0 <span class="sc">+</span> t_0s <span class="sc">+</span> <span class="fu">if_else</span>(condition<span class="sc">==</span><span class="st">"present"</span>,b_1 <span class="sc">+</span> t_1s, <span class="dv">0</span>) <span class="sc">+</span> sigma</span>
+<span id="cb8-36"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-36" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-37"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-37" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(sub, condition, rt)</span>
+<span id="cb8-38"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-39"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df_sim)</span>
+<span id="cb8-40"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb8-40" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And now, we wrap <em>that</em> into a function that generates the data and runs the test we want on it, to obtain, among other things, a p value for each time we simulate!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-1" aria-hidden="true" tabindex="-1"></a>single_run <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">filename =</span> <span class="cn">NULL</span>, ...) {</span>
+<span id="cb9-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ... is a shortcut that forwards any arguments to my_sim_data()</span></span>
+<span id="cb9-3"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-3" aria-hidden="true" tabindex="-1"></a>  dat_sim <span class="ot">&lt;-</span> <span class="fu">sim_data</span>(...)</span>
+<span id="cb9-4"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-5"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># run lmer and capture any warnings</span></span>
+<span id="cb9-6"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-6" aria-hidden="true" tabindex="-1"></a>  ww <span class="ot">&lt;-</span> <span class="st">""</span></span>
+<span id="cb9-7"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">suppressMessages</span>(<span class="fu">suppressWarnings</span>(</span>
+<span id="cb9-8"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-8" aria-hidden="true" tabindex="-1"></a>    mod_sim <span class="ot">&lt;-</span> <span class="fu">withCallingHandlers</span>({</span>
+<span id="cb9-9"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">lmer</span>(rt <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> condition <span class="sc">|</span> sub),</span>
+<span id="cb9-10"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-10" aria-hidden="true" tabindex="-1"></a>           dat_sim, <span class="at">REML =</span> <span class="cn">FALSE</span>)},</span>
+<span id="cb9-11"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">warning =</span> <span class="cf">function</span>(w) { ww <span class="ot">&lt;&lt;-</span> w<span class="sc">$</span>message }</span>
+<span id="cb9-12"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-13"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-13" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb9-14"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-15"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># get results table and add rep number and any warnings</span></span>
+<span id="cb9-16"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-16" aria-hidden="true" tabindex="-1"></a>  sim_results <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(mod_sim) <span class="sc">%&gt;%</span></span>
+<span id="cb9-17"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">warnings =</span> ww)</span>
+<span id="cb9-18"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-19"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add columns for the specified parameters</span></span>
+<span id="cb9-20"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-20" aria-hidden="true" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <span class="fu">list</span>(...)</span>
+<span id="cb9-21"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (name <span class="cf">in</span> <span class="fu">names</span>(params)) {</span>
+<span id="cb9-22"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-22" aria-hidden="true" tabindex="-1"></a>    sim_results[name] <span class="ot">&lt;-</span> params[name]</span>
+<span id="cb9-23"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-24"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-25"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># append the results to a file if filename is set</span></span>
+<span id="cb9-26"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(filename)) {</span>
+<span id="cb9-27"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-27" aria-hidden="true" tabindex="-1"></a>    append <span class="ot">&lt;-</span> <span class="fu">file.exists</span>(filename) <span class="co"># append if the file exists</span></span>
+<span id="cb9-28"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write_csv</span>(sim_results, filename, <span class="at">append =</span> append)</span>
+<span id="cb9-29"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-29" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-30"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-31"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(sim_results)</span>
+<span id="cb9-32"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb9-32" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="putting-it-together" class="level2">
+<h2 class="anchored" data-anchor-id="putting-it-together">Putting it together<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="file:///C:/Users/cjung/opam_power_analysis/opam.html#putting-it-together" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>Now that we have this function, we can start simulating a bunch of times! This cell will take a while to run.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-1" aria-hidden="true" tabindex="-1"></a>nreps <span class="ot">&lt;-</span> <span class="dv">1000</span> <span class="co"># This is generally a good balance between computation time and reliability. Bigger is better, but might take prohibitively long to run. </span></span>
+<span id="cb10-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-3" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">crossing</span>(</span>
+<span id="cb10-4"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep =</span> <span class="dv">1</span><span class="sc">:</span>nreps,   <span class="co"># number of runs</span></span>
+<span id="cb10-5"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_sub =</span> <span class="dv">20</span>,</span>
+<span id="cb10-6"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_trials =</span> <span class="dv">100</span>,</span>
+<span id="cb10-7"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">b_0 =</span> <span class="dv">1000</span>,</span>
+<span id="cb10-8"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">b_1 =</span> <span class="dv">40</span>,</span>
+<span id="cb10-9"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">tau_0 =</span> <span class="dv">80</span>,</span>
+<span id="cb10-10"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">tau_1 =</span> <span class="dv">30</span>,</span>
+<span id="cb10-11"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">rho =</span> .<span class="dv">2</span>,</span>
+<span id="cb10-12"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma =</span> <span class="dv">200</span></span>
+<span id="cb10-13"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-13" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>rep)</span>
+<span id="cb10-14"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># This is where the magic happens!</span></span>
+<span id="cb10-16"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb10-16" aria-hidden="true" tabindex="-1"></a>sims <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">pmap_df</span>(params,single_run,<span class="at">filename=</span><span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now that we have our sims, read out the results:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate mean estimates and power for specified alpha</span></span>
+<span id="cb11-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
+<span id="cb11-3"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-3" aria-hidden="true" tabindex="-1"></a>sims <span class="sc">%&gt;%</span> </span>
+<span id="cb11-4"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(effect <span class="sc">==</span> <span class="st">"fixed"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(term) <span class="sc">%&gt;%</span></span>
+<span id="cb11-6"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb11-7"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_estimate =</span> <span class="fu">mean</span>(estimate),</span>
+<span id="cb11-8"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_se =</span> <span class="fu">mean</span>(std.error),</span>
+<span id="cb11-9"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">power =</span> <span class="fu">mean</span>(p.value <span class="sc">&lt;</span> alpha),</span>
+<span id="cb11-10"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb11-11"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb11-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 4
+  term             mean_estimate mean_se power
+  &lt;chr&gt;                    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
+1 (Intercept)             1000.    17.8  1    
+2 conditionpresent          39.9    8.88 0.983</code></pre>
+</div>
+</div>
+<p>Looks good! Now you know how to use simulation to obtain an estimate of your study’s power!</p>
+</section>
+<section id="sensitivity-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="sensitivity-analysis">Sensitivity analysis<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon="" href="file:///C:/Users/cjung/opam_power_analysis/opam.html#sensitivity-analysis" style="font: 1em / 1 anchorjs-icons; margin-left: 0.1875em; padding-right: 0.1875em; padding-left: 0.1875em;"></a></h2>
+<p>But what if I want to see how the power of my design changes as one of the simulation parameters changes (like number of participants)? Well, we can just build on our simulation machinery to simulate across levels of a parameter value! Note, this will take even longer to run - and will save a file named sens1.csv to your current working directory - if that file already exists, it will read out that file rather than run the whole simulation again.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-1" aria-hidden="true" tabindex="-1"></a>filename1 <span class="ot">&lt;-</span> <span class="st">"sens1.csv"</span></span>
+<span id="cb13-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-2" aria-hidden="true" tabindex="-1"></a>nreps <span class="ot">&lt;-</span> <span class="dv">1000</span> <span class="co"># number of replications per parameter combo</span></span>
+<span id="cb13-3"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-4" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">crossing</span>(</span>
+<span id="cb13-5"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep =</span> <span class="dv">1</span><span class="sc">:</span>nreps,     <span class="co"># repeats each combo nreps times</span></span>
+<span id="cb13-6"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_sub =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">10</span>,</span>
+<span id="cb13-7"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_trials =</span> <span class="dv">50</span>,</span>
+<span id="cb13-8"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">b_0 =</span> <span class="dv">1000</span>,</span>
+<span id="cb13-9"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">b_1 =</span> <span class="dv">100</span>,</span>
+<span id="cb13-10"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">tau_0 =</span> <span class="dv">80</span>,</span>
+<span id="cb13-11"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">tau_1 =</span> <span class="dv">30</span>,</span>
+<span id="cb13-12"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">rho =</span> .<span class="dv">2</span>,</span>
+<span id="cb13-13"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma =</span> <span class="dv">200</span></span>
+<span id="cb13-14"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-14" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-15"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-15" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>rep)</span>
+<span id="cb13-16"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(filename1)) {</span>
+<span id="cb13-18"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># run a simulation for each row of params</span></span>
+<span id="cb13-19"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># and save to a file on each rep</span></span>
+<span id="cb13-20"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-20" aria-hidden="true" tabindex="-1"></a>  sims1 <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">pmap_df</span>(params, single_run, <span class="at">filename =</span> filename1)</span>
+<span id="cb13-21"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-21" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb13-22"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-22" aria-hidden="true" tabindex="-1"></a>  sims1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(filename1)</span>
+<span id="cb13-23"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb13-23" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Just like before, we can read out the data. We should also plot the power curve for a nice visual intuition of our results!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-1" aria-hidden="true" tabindex="-1"></a>power1 <span class="ot">&lt;-</span> sims1 <span class="sc">%&gt;%</span> </span>
+<span id="cb14-2"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(effect <span class="sc">==</span> <span class="st">"fixed"</span>, term <span class="sc">==</span> <span class="st">"conditionprimed"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(n_sub) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb14-5"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_estimate =</span> <span class="fu">mean</span>(estimate),</span>
+<span id="cb14-6"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_se =</span> <span class="fu">mean</span>(std.error),</span>
+<span id="cb14-7"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">power =</span> <span class="fu">mean</span>(p.value <span class="sc">&lt;</span> alpha),</span>
+<span id="cb14-8"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb14-9"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-9" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb14-10"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-11" aria-hidden="true" tabindex="-1"></a>power1 <span class="sc">%&gt;%</span></span>
+<span id="cb14-12"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>n_sub, <span class="at">y=</span>power)) <span class="sc">+</span></span>
+<span id="cb14-13"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb14-14"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb14-15"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb14-16"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="fl">0.8</span>,<span class="at">linetype=</span><span class="st">"dashed"</span>)<span class="sc">+</span></span>
+<span id="cb14-17"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">"Effect of number of participants"</span>) <span class="sc">+</span></span>
+<span id="cb14-18"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Power for designs varying in sample size"</span>) <span class="sc">+</span></span>
+<span id="cb14-19"><a href="file:///C:/Users/cjung/opam_power_analysis/opam.html#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using method = 'loess' and formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 6 rows containing missing values or values outside the scale range
+(`geom_smooth()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="./code_rendered_files/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>And there you have it, we built all the tools we need for a simple sensitivity analysis! Happy simulating!</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
