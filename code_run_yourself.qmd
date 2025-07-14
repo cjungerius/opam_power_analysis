@@ -1,6 +1,6 @@
 ---
 title: "OPAM workshop"
-format: html
+format: pdf
 ---
 
 shout-out to the work of Lisa DeBruine [whose work](https://journals.sagepub.com/doi/full/10.1177/2515245920965119) heavily inspired this script.
@@ -175,7 +175,8 @@ single_run <- function(filename = NULL, ...) {
 Now that we have this function, we can start simulating a bunch of times! This cell will take a while to run.
 
 ```{r}
-nreps <- 1000 # This is generally a good balance between computation time and reliability. Bigger is better, but might take prohibitively long to run. 
+nreps <- 1000 # This is generally a good balance between computation time 
+# and reliability. Bigger is better, but might take prohibitively long to run. 
 
 params <- crossing(
   rep = 1:nreps,   # number of runs
